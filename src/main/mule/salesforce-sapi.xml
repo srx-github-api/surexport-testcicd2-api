@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="salesforce-sapi-config" api="resource::006ed2f2-257e-4812-b06a-9d749262acd3:salesforce-sapi:1.0.57:raml:zip:salesforce-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="salesforce-sapi-main">
+        <http:listener config-ref="HTTP_LISTENER_CONFIG" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="salesforce-sapi-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="salesforce-sapi-console">
+        <http:listener config-ref="HTTP_LISTENER_CONFIG" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="salesforce-sapi-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="patch:\contact:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="patch:\contact:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="patch:\customer:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="patch:\customer:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\bill:salesforce-sapi-config">
+        <logger level="INFO" message="get:\bill:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\contact:salesforce-sapi-config">
+        <logger level="INFO" message="get:\contact:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\contact-collection:salesforce-sapi-config">
+        <logger level="INFO" message="get:\contact-collection:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\customer:salesforce-sapi-config">
+        <logger level="INFO" message="get:\customer:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\delivery:salesforce-sapi-config">
+        <logger level="INFO" message="get:\delivery:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\delivery-line:salesforce-sapi-config">
+        <logger level="INFO" message="get:\delivery-line:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\delivery-status-mdt:salesforce-sapi-config">
+        <logger level="INFO" message="get:\delivery-status-mdt:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\deliverys-transport:salesforce-sapi-config">
+        <logger level="INFO" message="get:\deliverys-transport:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\garment-client-products:salesforce-sapi-config">
+        <logger level="INFO" message="get:\garment-client-products:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\order:salesforce-sapi-config">
+        <logger level="INFO" message="get:\order:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\order-status-mdt:salesforce-sapi-config">
+        <logger level="INFO" message="get:\order-status-mdt:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\orderLineItem:salesforce-sapi-config">
+        <logger level="INFO" message="get:\orderLineItem:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\pricebook:salesforce-sapi-config">
+        <logger level="INFO" message="get:\pricebook:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\product:salesforce-sapi-config">
+        <logger level="INFO" message="get:\product:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\product-pricebookEntry:salesforce-sapi-config">
+        <logger level="INFO" message="get:\product-pricebookEntry:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\unit-mdt:salesforce-sapi-config">
+        <logger level="INFO" message="get:\unit-mdt:salesforce-sapi-config" />
+    </flow>
+    <flow name="get:\variety:salesforce-sapi-config">
+        <logger level="INFO" message="get:\variety:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\bill-line:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\bill-line:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\bill:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\bill:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\contact:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\contact:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\customer:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\customer:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\delivery-line:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\delivery-line:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\delivery-lot:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\delivery-lot:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\delivery-transport:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\delivery-transport:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\delivery:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\delivery:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\garment-client:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\garment-client:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\materialclient:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\materialclient:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\order:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\order:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\orderLineItem:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\orderLineItem:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\product:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\product:application\json:salesforce-sapi-config" />
+    </flow>
+    <flow name="post:\transport:application\json:salesforce-sapi-config">
+        <logger level="INFO" message="post:\transport:application\json:salesforce-sapi-config" />
+    </flow>
+</mule>

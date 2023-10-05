@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<error-handler name="GLOBAL_ERROR_HANDLER" doc:id="dc9bd0ed-d79e-474a-a21d-78be3752c546">
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="22b0f159-3f07-4bb8-8c44-ebc7feba5eaf" type="ANY">
+			<flow-ref doc:name="ERROR_HANDLER_CRITICAL" doc:id="7831d23a-7f03-452d-a1e6-20b87f44fe74" name="ERROR_HANDLER_CRITICAL" />
+		</on-error-propagate>
+	</error-handler>
+	<flow name="ERROR_HANDLER_CRITICAL" doc:id="dbce7106-0221-443c-a8d7-e7cf450ddce0">
+		<ee:transform doc:name="payload &amp; httpStatus" doc:id="0ed39910-e504-45cb-8420-a5f3fa5d06fb">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	success: false,
+	description: "Unexpected exception thrown",
+	errorCode: 0,
+	exceptionType: "CRITICAL_EXCEPTION",
+	body: error.description as String default ""
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/json
+---
+200]]></ee:set-variable>
+
+			
+</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="error" doc:id="b7b79893-c093-4642-aa77-866af97cf5ed" message='#["# ERROR_HANDLER_GLOBAL - error: " ++ write(payload)]' />
+	</flow>
+
+</mule>

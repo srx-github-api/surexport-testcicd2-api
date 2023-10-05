@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+    <global-property doc:name="Global Property" doc:id="7cddea1e-7deb-43fc-ba05-7ccdba67e4ff" name="env" value="qa" />
+    <global-property doc:name="Global Property" doc:id="a08b02b8-cd08-406a-a9dd-15b6a3d9eade" name="encryptKey" value="XXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
+    <configuration doc:name="Configuration" doc:id="d40039bc-f4f8-4681-be2d-2bdb5e90699b" defaultErrorHandler-ref="GLOBAL_ERROR_HANDLER" />
+    <configuration-properties doc:name="Configuration properties" doc:id="59581e8f-ebaa-4b61-93a0-c3e90a67e7e3" file="properties/${env}-config.properties" />
+    <secure-properties:config name="SECURE_PROPERTIES_CONFIG" doc:name="Secure Properties Config" doc:id="8b807146-d460-40da-bbf3-b5a707286ad4" file="properties\secure-dev-config.properties" key="${encryptKey}" />
+    <tls:context name="TLS_Context" doc:name="TLS Context" doc:id="70e5e80a-bd19-4028-b756-2ec694930211">
+        <tls:key-store type="pkcs12" path="keystore/keystore-surexport.pkcs12" alias="mule-surexport" keyPassword="Surexport2023*" password="Surexport2023*" />
+    </tls:context>
+	<http:listener-config name="HTTP_LISTENER_CONFIG" doc:name="HTTP Listener config" doc:id="8a4a6767-2389-4b41-9f97-99893f173cf9" >
+		<http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS" tlsContext="TLS_Context"/>
+	</http:listener-config>
+</mule>
