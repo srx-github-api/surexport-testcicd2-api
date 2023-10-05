@@ -79,8 +79,8 @@ jobs:
         MULE_VCORES: ${{ vars.vcores }}
         ENCRYPT_KEY: ${{ secrets.encrypt_key }}
       run: |
-        chmod +x src/main/resources/scripts/maven-application-deploy.sh 
-        ./src/main/resources/scripts/maven-application-deploy.sh \
+        chmod +x src/main/resources/scripts/maven-application-deploy2.sh 
+        ./src/main/resources/scripts/maven-application-deploy2.sh \
          --client-id=$MULE_CLIENT_ID \
          --client-secret=$MULE_CLIENT_SECRET \
          --application-name=$MULE_APP_NAME \
