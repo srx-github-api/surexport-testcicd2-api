@@ -1,0 +1,120 @@
+#Docker image
+image: maven:3.8.3-jdk-8
+
+.required-config:
+    before_script:
+        - chmod u+x -R ./src/main/resources/scripts
+        - ./src/main/resources/scripts/maven-configure.sh
+
+stages:
+    - test
+    - deploy
+
+default:
+    tags:
+        - nubirunner-group
+
+################
+#  test stage  #
+################
+
+test-DEV:
+    stage: test
+    environment: DEV
+    only:
+        refs:
+            - merge_requests
+        variables:
+            - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "DEV"
+    script:
+        - echo "Tests not required"
+
+test-QA:
+    stage: test
+    environment: QA
+    only:
+        refs:
+            - merge_requests
+        variables:
+            - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "QA"
+    script:
+        - echo "Tests not required"
+
+test-main:
+    stage: test
+    environment: QA
+    only:
+        refs:
+            - merge_requests
+        variables:
+            - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    script:
+        - echo "Tests not required"
+
+test-PRO:
+    stage: test
+    environment: PRO
+    only:
+        refs:
+            - merge_requests
+        variables:
+            - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "PRO"
+    script:
+        - echo "Tests not required"
+
+################
+# deploy stage #
+################
+
+deploy-DEV:
+    stage: deploy
+    extends: .required-config
+    environment: DEV
+    only:
+        refs:
+            - DEV
+    except:
+        - merge_requests
+    script:
+        - ./src/main/resources/scripts/utils-encrypt-properties.sh --encrypt-key=$ENCRYPT_KEY
+        - ./src/main/resources/scripts/maven-application-deploy.sh --client-id=$MULE_CLIENT_ID --client-secret=$MULE_CLIENT_SECRET --environment=$MULE_ENVIRONMENT --workers=$MULE_WORKERS --worker-type=$MULE_WORKER_TYPE --env=dev --encrypt-key=$ENCRYPT_KEY
+
+deploy-QA:
+    stage: deploy
+    extends: .required-config
+    environment: QA
+    only:
+        refs:
+            - QA
+    except:
+        - merge_requests
+    script:
+        - ./src/main/resources/scripts/utils-encrypt-properties.sh --encrypt-key=$ENCRYPT_KEY
+        - ./src/main/resources/scripts/maven-application-deploy.sh --client-id=$MULE_CLIENT_ID --client-secret=$MULE_CLIENT_SECRET --environment=$MULE_ENVIRONMENT --workers=$MULE_WORKERS --worker-type=$MULE_WORKER_TYPE --env=qa --encrypt-key=$ENCRYPT_KEY
+
+
+deploy-main:
+    stage: deploy
+    extends: .required-config
+    environment: QA
+    only:
+        refs:
+            - main
+    except:
+        - merge_requests
+    script:
+        - ./src/main/resources/scripts/utils-encrypt-properties.sh --encrypt-key=$ENCRYPT_KEY
+        - ./src/main/resources/scripts/maven-application-deploy.sh --client-id=$MULE_CLIENT_ID --client-secret=$MULE_CLIENT_SECRET --environment=$MULE_ENVIRONMENT --workers=$MULE_WORKERS --worker-type=$MULE_WORKER_TYPE --env=qa --encrypt-key=$ENCRYPT_KEY
+
+deploy-PRO:
+    stage: deploy
+    extends: .required-config
+    environment: PRO
+    only:
+        refs:
+            - PRO
+    except:
+        - merge_requests
+    script:
+        - ./src/main/resources/scripts/utils-encrypt-properties.sh --encrypt-key=$ENCRYPT_KEY
+        - ./src/main/resources/scripts/maven-application-deploy.sh --client-id=$MULE_CLIENT_ID --client-secret=$MULE_CLIENT_SECRET --environment=$MULE_ENVIRONMENT --workers=$MULE_WORKERS --worker-type=$MULE_WORKER_TYPE --env=prod --encrypt-key=$ENCRYPT_KEY
