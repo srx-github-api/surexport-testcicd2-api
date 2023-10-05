@@ -34,7 +34,6 @@
 				  		<uri>https://anypoint.mulesoft.com</uri>
 				      	<muleVersion>${deployment.mule.runtime}</muleVersion>
 				      	<businessGroupId>${project.groupId}</businessGroupId>
-				      	<server>${server.id}</server>
 				      	<provider>MC</provider>
 				      	<applicationName>${cloudhub.application.name}</applicationName>
 				      	<environment>${cloudhub.environment}</environment>
