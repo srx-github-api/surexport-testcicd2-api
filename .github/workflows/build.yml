@@ -27,8 +27,8 @@ jobs:
         java-version: 8
     - name: Build with Maven
       env:
-        MULE_CLIENT_ID: ${{ vars.mule_client_id }}
-        MULE_CLIENT_SECRET: ${{ vars.mule_client_secret }}
+        MULE_CLIENT_ID: ${{ secrets.mule_client_id }}
+        MULE_CLIENT_SECRET: ${{ secrets.mule_client_secret }}
         REPOSITORY_NAME: ${{ vars.repository_name }}
       run: |
         chmod +x src/main/resources/scripts/maven-configure.sh 
