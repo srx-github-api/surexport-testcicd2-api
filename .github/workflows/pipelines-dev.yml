@@ -1,14 +1,13 @@
-name: Build and Deploy to Sandbox
+name: Build and deploy to DEV
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
     
 jobs:
-  build:
+  build-dev:
     runs-on: ubuntu-latest
+    if: github.base_ref == 'dev' && startsWith(github.head_ref, 'merge/') && endsWith(github.head_ref, '_dev')
     environment: DEV
     steps:
     - name: Checkout this repo
@@ -49,9 +48,10 @@ jobs:
           name: artifacts
           path: target/*.jar
         
-  deploy:
-    needs: build
+  deploy-dev:
+    needs: build-dev
     runs-on: ubuntu-latest
+    if: github.base_ref == 'dev' && startsWith(github.head_ref, 'merge/') && endsWith(github.head_ref, '_dev')
     environment: DEV
     steps:    
     - name: Checkout this repo
