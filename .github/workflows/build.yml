@@ -66,6 +66,9 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: artifacts
+    - name: Deploy app asset to Exchange
+      run: |
+        mvn clean deploy || true
     - name: Deploy to Sandbox
       env:
         MULE_CLIENT_ID: ${{ secrets.mule_client_id }}
