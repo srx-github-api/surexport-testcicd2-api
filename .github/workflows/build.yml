@@ -1,14 +1,13 @@
 name: Build and Deploy to Sandbox
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
     
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'merge/') && endsWith(github.head_ref, '_dev')
     environment: DEV
     steps:
     - name: Checkout this repo
@@ -52,6 +51,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'merge/') && endsWith(github.head_ref, '_dev')
     environment: DEV
     steps:    
     - name: Checkout this repo
