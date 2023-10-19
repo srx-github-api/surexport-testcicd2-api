@@ -69,10 +69,12 @@ jobs:
     - name: Deploy app asset to Exchange
       run: |
         mvn clean deploy || true
-    - name: Deploy to Sandbox
+    - name: Deploy to QA
       env:
         MULE_CLIENT_ID: ${{ secrets.mule_client_id }}
         MULE_CLIENT_SECRET: ${{ secrets.mule_client_secret }}
+        ANYPOINT_CLIENT_ID: ${{ secrets.anypoint_client_id }}
+        ANYPOINT_CLIENT_SECRET: ${{ secrets.anypoint_client_secret }}
         MULE_APP_NAME: ${{ vars.application_name }}
         MULE_TARGET_NAME: ${{ vars.target_name }}
         MULE_SERVER_ID: ${{ vars.repository_name }}
@@ -86,11 +88,13 @@ jobs:
         ./src/main/resources/scripts/maven-application-deploy2.sh \
          --client-id=$MULE_CLIENT_ID \
          --client-secret=$MULE_CLIENT_SECRET \
+         --anypoint-platform-client-id=$ANYPOINT_CLIENT_ID \
+         --anypoint-platform-client-secret=$ANYPOINT_CLIENT_SECRET \
          --application-name=$MULE_APP_NAME \
          --target-name=$MULE_TARGET_NAME \
          --server-id=$REPOSITORY_NAME \
          --environment=$MULE_ENVIRONMENT \
          --replicas=$MULE_REPLICAS \
          --vcores=$MULE_VCORES \
-         --env=qa \
+         --env=dev \
          --encrypt-key=$ENCRYPT_KEY
