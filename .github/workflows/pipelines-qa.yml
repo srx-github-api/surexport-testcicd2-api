@@ -96,5 +96,5 @@ jobs:
          --environment=$MULE_ENVIRONMENT \
          --replicas=$MULE_REPLICAS \
          --vcores=$MULE_VCORES \
-         --env=dev \
+         --env=qa \
          --encrypt-key=$ENCRYPT_KEY
