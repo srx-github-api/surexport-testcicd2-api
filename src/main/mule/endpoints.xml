@@ -7,5 +7,6 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<flow name="endpointsFlow" doc:id="26c8f007-e78c-46a0-be69-5f8bb20b0657" >
 		<http:listener doc:name="Listener" doc:id="eda60d74-cfd1-4ab8-9741-30ab3da2c878" config-ref="HTTP_LISTENER_CONFIG" path="/test"/>
 		<set-payload value='#[output application/json&#10;---&#10;{&#10;	status: "OK",&#10;	timestamp: now()&#10;}]' doc:name="Set Payload" doc:id="c0453fc1-8e26-4814-8728-285c30bd0e76" />
+		<logger level="DEBUG" doc:name='Logger "Test CI"' doc:id="96595cdf-0cf0-471c-9938-c46147c065d6" message='"Test CI"'/>
 	</flow>
 </mule>
